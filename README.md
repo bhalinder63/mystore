@@ -127,31 +127,6 @@ document.addEventListener("DOMContentLoaded", function () {
 - `updateCartItem(key, quantity)`: Update item quantities
 - `open()` / `close()`: Control drawer visibility
 
-## Customization
-
-### Theme Settings
-
-The components automatically use your theme's styles and color scheme. You can customize:
-
-- Gallery layout and image sizes
-- Variant selector style (buttons vs. dropdowns)
-- Cart drawer width and animation timing
-
-### CSS Variables
-
-Both components use CSS variables for easy theming:
-
-```css
-:root {
-  --color-nocturnal: 43, 48, 63;
-  --color-mediterraneo: 68, 93, 108;
-  --color-ocean-fog: 160, 185, 185;
-  --color-potters-clay: 145, 125, 115;
-  --color-mushroom: 203, 193, 179;
-  --color-white-linen: 247, 247, 237;
-}
-```
-
 ## Browser Compatibility
 
 - Chrome (latest)
