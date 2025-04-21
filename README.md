@@ -6,16 +6,12 @@ A collection of custom JavaScript components designed to enhance the Shopify sto
 
 ### 1. Custom Product Page Components
 
-![Product Page](https://via.placeholder.com/800x400?text=Product+Page+Component)
-
 - **Interactive Product Gallery** with thumbnails and featured image
 - **Dynamic Variant Selection** with automatic image updates
 - **Quantity Selector** with min/max validation
 - **Responsive Design** for all device sizes
 
 ### 2. Custom Cart Drawer
-
-![Cart Drawer](https://via.placeholder.com/800x400?text=Cart+Drawer+Component)
 
 - **Slide-out Cart** with smooth animations
 - **AJAX Cart Updates** without page refreshes
