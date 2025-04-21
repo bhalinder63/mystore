@@ -1,0 +1,11 @@
+{
+  "sections": {
+    "main": {
+      "type": "my-product",
+      "settings": {
+        "container_width": "standard"
+      }
+    }
+  },
+  "order": ["main"]
+}

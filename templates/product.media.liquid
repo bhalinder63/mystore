@@ -1,0 +1,70 @@
+{%- comment -%}
+  This template is for direct image requests without any extra content
+  It looks for a specific media item based on media_id parameter and returns just that image
+{%- endcomment -%}
+
+{%- liquid
+  # Get the media ID from the request parameters
+  assign requested_media_id = request.parameters.media_id | strip | plus: 0
+  assign found_media = false
+  
+  # Debug info as HTML comment (won't be visible when parsed)
+  comment
+    echo '<!-- Media request details:'
+    echo '  Requested media ID: ' | append: requested_media_id
+    echo '  Available media: ' | append: product.media.size
+    echo '-->'
+  endcomment
+  
+  # Loop through all media to find the exact match
+  for media in product.media
+    if media.id == requested_media_id
+      assign found_media = true
+  
+      # Just output the image with necessary attributes
+      echo '<img'
+      echo '  src="' | append: media | image_url: width: 990 | append: '"'
+      echo '  srcset="'
+      if media.width >= 493
+        echo media | image_url: width: 493 | append: ' 493w, '
+      endif
+      if media.width >= 600
+        echo media | image_url: width: 600 | append: ' 600w, '
+      endif
+      if media.width >= 713
+        echo media | image_url: width: 713 | append: ' 713w, '
+      endif
+      if media.width >= 990
+        echo media | image_url: width: 990 | append: ' 990w, '
+      endif
+      if media.width >= 1100
+        echo media | image_url: width: 1100 | append: ' 1100w, '
+      endif
+      echo media | image_url | append: ' ' | append: media.width | append: 'w"'
+      echo '  sizes="(min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw - 4rem)"'
+      echo '  width="' | append: media.width | append: '"'
+      echo '  height="' | append: media.height | append: '"'
+      echo '  alt="' | append: media.alt | escape | append: '"'
+      echo '  class="custom-product__featured-image"'
+      echo '  data-media-id="' | append: media.id | append: '"'
+      echo '  loading="eager"'
+      echo '>'
+      
+      # Break the loop once we find the media
+      break
+    endif
+  endfor
+
+  # If no media found, output error message
+  unless found_media
+    echo '<div class="error-message" style="text-align: center; padding: 20px;">'
+    echo '  <p>Media ID ' | append: requested_media_id | append: ' not found</p>'
+    echo '  <p>Available media IDs: '
+    for media in product.media
+      echo media.id | append: ' ('
+      echo media.media_type | append: ') '
+    endfor
+    echo '</p>'
+    echo '</div>'
+  endunless
+-%} 

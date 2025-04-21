@@ -14,6 +14,45 @@
   %}
 {% endcomment %}
 
+{%- liquid
+  # Find the requested media
+  assign media_id = request.parameters.media_id
+  if media_id
+    for media in product.media
+      if media.id == media_id
+        assign media_item = media
+        break
+      endif
+    endfor
+  endif
+-%}
+
+{%- if media_item -%}
+  <img
+    srcset="{%- if media_item.width >= 493 -%}{{ media_item | image_url: width: 493 }} 493w,{%- endif -%}
+      {%- if media_item.width >= 600 -%}{{ media_item | image_url: width: 600 }} 600w,{%- endif -%}
+      {%- if media_item.width >= 713 -%}{{ media_item | image_url: width: 713 }} 713w,{%- endif -%}
+      {%- if media_item.width >= 823 -%}{{ media_item | image_url: width: 823 }} 823w,{%- endif -%}
+      {%- if media_item.width >= 990 -%}{{ media_item | image_url: width: 990 }} 990w,{%- endif -%}
+      {%- if media_item.width >= 1100 -%}{{ media_item | image_url: width: 1100 }} 1100w,{%- endif -%}
+      {%- if media_item.width >= 1206 -%}{{ media_item | image_url: width: 1206 }} 1206w,{%- endif -%}
+      {%- if media_item.width >= 1346 -%}{{ media_item | image_url: width: 1346 }} 1346w,{%- endif -%}
+      {%- if media_item.width >= 1426 -%}{{ media_item | image_url: width: 1426 }} 1426w,{%- endif -%}
+      {%- if media_item.width >= 1646 -%}{{ media_item | image_url: width: 1646 }} 1646w,{%- endif -%}
+      {%- if media_item.width >= 1946 -%}{{ media_item | image_url: width: 1946 }} 1946w,{%- endif -%}
+      {{ media_item | image_url }} {{ media_item.width }}w"
+    src="{{ media_item | image_url: width: 990 }}"
+    sizes="(min-width: 1100px) 535px, (min-width: 990px) calc(55.5vw - 10rem), (min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw - 4rem)"
+    loading="eager"
+    width="{{ media_item.width }}"
+    height="{{ media_item.height }}"
+    alt="{{ media_item.alt | escape }}"
+    class="custom-product__featured-image"
+  >
+{%- else -%}
+  <p>Media not found</p>
+{%- endif -%}
+
 {%- if media.media_type == 'image' -%}
   <img
     class="global-media-settings global-media-settings--no-shadow{% if variant_image %} product__media-item--variant{% endif %}"

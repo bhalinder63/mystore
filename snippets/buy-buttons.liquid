@@ -38,7 +38,7 @@
 
       {%- form 'product',
         product,
-        id: product_form_id,
+        id: product_form_id | replace: 'product-form', 'custom-product-form',
         class: 'form',
         novalidate: 'novalidate',
         data-type: 'add-to-cart-form'

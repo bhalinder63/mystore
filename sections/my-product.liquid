@@ -1,0 +1,317 @@
+{{ 'my-product.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'my-product.js' | asset_url }}" defer="defer"></script>
+
+{%- comment -%}
+  Custom product section with image gallery on left and product details on right
+{%- endcomment -%}
+
+{%- assign current_variant = product.selected_or_first_available_variant -%}
+{%- assign product_has_only_default_variant = product.has_only_default_variant -%}
+{%- assign product_form_id = 'product-form-' | append: section.id -%}
+
+<section
+  id="ProductSection-{{ section.id }}"
+  class="my-product {% if section.settings.container_width == 'narrow' %}my-product--narrow{% endif %}"
+  data-section-id="{{ section.id }}"
+  data-section-type="my-product"
+  data-product-id="{{ product.id }}"
+  data-product-handle="{{ product.handle }}"
+  data-enable-history-state="true"
+>
+  <div class="my-product__container">
+    <div class="my-product__gallery" role="region" aria-label="Product gallery">
+      <div class="my-product__gallery-main">
+        {%- if product.featured_media -%}
+          <div class="my-product__featured-image-container" id="ProductPhoto-{{ section.id }}">
+            {%- liquid
+              assign img_url = product.featured_media | img_url: '1000x'
+              assign img_width = product.featured_media.width | at_most: 1000
+              assign img_height = product.featured_media.height | times: img_width | divided_by: product.featured_media.width
+            -%}
+            <img
+              class="my-product__featured-image"
+              src="{{ img_url }}"
+              srcset="
+                {{ product.featured_media | img_url: '400x' }} 400w,
+                {{ product.featured_media | img_url: '600x' }} 600w,
+                {{ product.featured_media | img_url: '800x' }} 800w,
+                {{ product.featured_media | img_url: '1000x' }} 1000w
+              "
+              sizes="(min-width: 768px) 50vw, 100vw"
+              alt="{{ product.featured_media.alt | escape }}"
+              id="my-product-featured-image-{{ product.id }}"
+              loading="eager"
+              width="{{ img_width }}"
+              height="{{ img_height }}"
+              data-product-featured-image
+            >
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- if product.media.size > 1 -%}
+        <div class="my-product__gallery-thumbnails" id="ProductThumbs-{{ section.id }}">
+          {%- for media in product.media -%}
+            {%- liquid
+              assign img_thumb_url = media | img_url: '100x'
+              assign media_alt = media.alt | escape
+            -%}
+            <button
+              class="my-product__thumbnail{% if media.id == product.featured_media.id %} my-product__thumbnail--active{% endif %}"
+              data-media-id="{{ media.id }}"
+              data-thumbnail-id="{{ media.id }}"
+              {% if media.media_type == 'image' %}
+                data-image="{{ media | img_url: '1000x' }}"
+              {% endif %}
+              type="button"
+              aria-label="View {{ media_alt }}"
+              aria-pressed="{% if media.id == product.featured_media.id %}true{% else %}false{% endif %}"
+              aria-current="{% if media.id == product.featured_media.id %}true{% else %}false{% endif %}"
+            >
+              <img
+                class="my-product__thumbnail-image"
+                src="{{ img_thumb_url }}"
+                alt="{{ media_alt }}"
+                loading="lazy"
+                width="60"
+                height="60"
+              >
+            </button>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div class="my-product__details">
+      <h1 class="my-product__title">{{ product.title }}</h1>
+
+      <div class="my-product__price-container" data-price-wrapper>
+        <p class="my-product__price" data-product-price>
+          {%- if current_variant.compare_at_price > current_variant.price -%}
+            <span class="visually-hidden">Sale price</span>
+          {%- else -%}
+            <span class="visually-hidden">Regular price</span>
+          {%- endif -%}
+          {{ current_variant.price | money }}
+        </p>
+
+        {%- if current_variant.compare_at_price > current_variant.price -%}
+          <p class="my-product__compare-price" data-compare-price>
+            <span class="visually-hidden">Regular price</span>
+            <s>{{ current_variant.compare_at_price | money }}</s>
+          </p>
+        {%- endif -%}
+
+        <div class="my-product__tax-note">
+          {%- if shop.taxes_included or shop.shipping_policy.body != blank -%}
+            <span class="my-product__tax-message">
+              {%- if shop.taxes_included -%}
+                Tax included.
+              {%- endif -%}
+              {%- if shop.shipping_policy.body != blank -%}
+                <a href="{{ shop.shipping_policy.url }}" class="my-product__policy-link">Shipping policy</a>
+              {%- endif -%}
+            </span>
+          {%- endif -%}
+        </div>
+      </div>
+
+      <div class="my-product__description rte">
+        {{ product.description }}
+      </div>
+
+      {%- form 'product',
+        product,
+        id: product_form_id,
+        class: 'my-product__form',
+        novalidate: 'novalidate',
+        data-type: 'add-to-cart-form',
+        data-product-form: ''
+      -%}
+        <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
+
+        {%- unless product_has_only_default_variant -%}
+          <div class="my-product__variants" data-variant-selects>
+            {%- for option in product.options_with_values -%}
+              {%- liquid
+                assign option_name = option.name | escape
+                assign option_index = forloop.index0
+                assign option_position = option.position
+                assign current_value = current_variant[option_position]
+                assign option_id = 'Option-' | append: section.id | append: '-' | append: option_index
+              -%}
+              <div class="my-product__option">
+                <fieldset class="my-product__fieldset">
+                  <legend class="my-product__option-label">
+                    {{ option_name }}
+                  </legend>
+                  <div class="my-product__option-selector">
+                    <select
+                      id="{{ option_id }}"
+                      class="my-product__option-select"
+                      name="options[{{ option_name }}]"
+                      data-option-position="{{ option_position }}"
+                      data-option-index="{{ option_index }}"
+                      aria-label="Select {{ option_name }}"
+                    >
+                      {%- for value in option.values -%}
+                        <option
+                          value="{{ value | escape }}"
+                          {% if value == option.selected_value %}
+                            selected="selected"
+                          {% endif %}
+                        >
+                          {{ value }}
+                        </option>
+                      {%- endfor -%}
+                    </select>
+                  </div>
+                </fieldset>
+              </div>
+            {%- endfor -%}
+          </div>
+
+          <noscript>
+            <select name="id" class="my-product__nojs-variant-select">
+              {%- for variant in product.variants -%}
+                <option
+                  value="{{ variant.id }}"
+                  {% if variant == current_variant %}
+                    selected="selected"
+                  {% endif %}
+                >
+                  {{ variant.title }} - {{ variant.price | money_with_currency }}
+                </option>
+              {%- endfor -%}
+            </select>
+          </noscript>
+        {%- endunless -%}
+
+        <div class="my-product__quantity">
+          <label class="my-product__quantity-label" for="Quantity-{{ section.id }}"> Quantity </label>
+          <quantity-input class="my-product__quantity-wrapper">
+            <button
+              class="my-product__quantity-button my-product__quantity-decrease"
+              type="button"
+              name="minus"
+              aria-label="Decrease quantity"
+              data-quantity-button="decrease"
+            >
+              <span aria-hidden="true">-</span>
+            </button>
+            <input
+              class="my-product__quantity-input"
+              type="number"
+              name="quantity"
+              id="Quantity-{{ section.id }}"
+              min="1"
+              value="1"
+              form="{{ product_form_id }}"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              data-quantity-input
+              aria-label="Quantity"
+            >
+            <button
+              class="my-product__quantity-button my-product__quantity-increase"
+              type="button"
+              name="plus"
+              aria-label="Increase quantity"
+              data-quantity-button="increase"
+            >
+              <span aria-hidden="true">+</span>
+            </button>
+          </quantity-input>
+        </div>
+
+        <div class="my-product__actions">
+          <button
+            type="submit"
+            name="add"
+            class="my-product__add-button"
+            id="ProductSubmitButton-{{ section.id }}"
+            {% unless current_variant.available %}
+              disabled
+            {% endunless %}
+            data-add-to-cart
+          >
+            <span class="my-product__add-button-text" data-add-to-cart-text>
+              {%- if current_variant.available -%}
+                Add to Cart
+              {%- else -%}
+                Sold Out
+              {%- endif -%}
+            </span>
+            <span class="my-product__loading-indicator" aria-hidden="true" data-loading-indicator>
+              <svg class="my-product__spinner" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <circle class="my-product__spinner-path" cx="12" cy="12" r="10" fill="none" stroke-width="2"></circle>
+              </svg>
+            </span>
+          </button>
+        </div>
+
+        <div class="my-product__error-container" role="alert" hidden data-error-container>
+          <span class="my-product__error-message" data-error-message></span>
+        </div>
+      {%- endform -%}
+
+      <div class="my-product__meta">
+        {%- if product.vendor != blank -%}
+          <p class="my-product__vendor">
+            <span class="my-product__meta-label">Vendor:</span>
+            <span class="my-product__meta-value">{{ product.vendor }}</span>
+          </p>
+        {%- endif -%}
+
+        {%- if product.type != blank -%}
+          <p class="my-product__type">
+            <span class="my-product__meta-label">Type:</span>
+            <span class="my-product__meta-value">{{ product.type }}</span>
+          </p>
+        {%- endif -%}
+
+        {%- if product.sku != blank and current_variant.sku != blank -%}
+          <p class="my-product__sku">
+            <span class="my-product__meta-label">SKU:</span>
+            <span class="my-product__meta-value" data-variant-sku>{{ current_variant.sku }}</span>
+          </p>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script type="application/json" id="ProductJSON-{{ section.id }}">
+  {{ product | json }}
+</script>
+
+{% schema %}
+{
+  "name": "My Product",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "select",
+      "id": "container_width",
+      "options": [
+        {
+          "value": "standard",
+          "label": "Standard"
+        },
+        {
+          "value": "narrow",
+          "label": "Narrow"
+        }
+      ],
+      "default": "standard",
+      "label": "Container width"
+    }
+  ],
+  "presets": [
+    {
+      "name": "My Product"
+    }
+  ]
+}
+{% endschema %}

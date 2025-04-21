@@ -1,0 +1,318 @@
+{{ 'section-main-custom-product.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'custom-product-components.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  # Check if the product has a selected variant or use the first available variant
+  if product.selected_or_first_available_variant.featured_media != null
+    assign featured_media = product.selected_or_first_available_variant.featured_media
+  else
+    assign featured_media = product.featured_media
+  endif
+-%}
+
+<div class="custom-product">
+  <div class="page-width">
+    <div class="custom-product__container">
+      <div class="custom-product__media">
+        {%- if product.media.size > 0 -%}
+          <div id="ProductGallery-{{ section.id }}" class="custom-product__gallery" data-product-id="{{ product.id }}">
+            <div class="custom-product__featured-media">
+              {%- if featured_media -%}
+                <img
+                  srcset="{%- if featured_media.width >= 493 -%}{{ featured_media | image_url: width: 493 }} 493w,{%- endif -%}
+                    {%- if featured_media.width >= 600 -%}{{ featured_media | image_url: width: 600 }} 600w,{%- endif -%}
+                    {%- if featured_media.width >= 713 -%}{{ featured_media | image_url: width: 713 }} 713w,{%- endif -%}
+                    {%- if featured_media.width >= 823 -%}{{ featured_media | image_url: width: 823 }} 823w,{%- endif -%}
+                    {%- if featured_media.width >= 990 -%}{{ featured_media | image_url: width: 990 }} 990w,{%- endif -%}
+                    {%- if featured_media.width >= 1100 -%}{{ featured_media | image_url: width: 1100 }} 1100w,{%- endif -%}
+                    {%- if featured_media.width >= 1206 -%}{{ featured_media | image_url: width: 1206 }} 1206w,{%- endif -%}
+                    {%- if featured_media.width >= 1346 -%}{{ featured_media | image_url: width: 1346 }} 1346w,{%- endif -%}
+                    {%- if featured_media.width >= 1426 -%}{{ featured_media | image_url: width: 1426 }} 1426w,{%- endif -%}
+                    {%- if featured_media.width >= 1646 -%}{{ featured_media | image_url: width: 1646 }} 1646w,{%- endif -%}
+                    {%- if featured_media.width >= 1946 -%}{{ featured_media | image_url: width: 1946 }} 1946w,{%- endif -%}
+                    {{ featured_media | image_url }} {{ featured_media.width }}w"
+                  src="{{ featured_media | image_url: width: 990 }}"
+                  sizes="(min-width: 1100px) 535px, (min-width: 990px) calc(55.5vw - 10rem), (min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw - 4rem)"
+                  loading="eager"
+                  width="{{ featured_media.width }}"
+                  height="{{ featured_media.height }}"
+                  alt="{{ featured_media.alt | escape }}"
+                  class="custom-product__featured-image"
+                  data-media-id="{{ featured_media.id }}"
+                  {% if settings.animations_reveal_on_scroll %}
+                    data-cascade
+                  {% endif %}
+                >
+              {%- else -%}
+                <div class="custom-product__featured-placeholder">
+                  {{ 'product-1' | placeholder_svg_tag: 'custom-product__featured-image placeholder-svg' }}
+                </div>
+              {%- endif -%}
+            </div>
+            
+            {%- if product.media.size > 1 -%}
+              <div class="custom-product__thumbnail-list" role="list">
+                {%- for media in product.media -%}
+                  <div class="custom-product__thumbnail-item" role="listitem">
+                    <button 
+                      class="custom-product__thumbnail-button{% if media.id == featured_media.id %} active{% endif %}" 
+                      data-media-id="{{ media.id }}"
+                      data-src="{{ media.preview_image | image_url }}"
+                      data-width="{{ media.preview_image.width }}"
+                      data-height="{{ media.preview_image.height }}"
+                      data-alt="{{ media.alt | escape }}"
+                      aria-label="Product image {{ forloop.index }}"
+                      aria-selected="{% if media.id == featured_media.id %}true{% else %}false{% endif %}"
+                      aria-controls="ProductGallery-{{ section.id }}"
+                    >
+                      <img
+                        srcset="{%- if media.preview_image.width >= 148 -%}{{ media.preview_image | image_url: width: 148 }} 148w,{%- endif -%}
+                          {%- if media.preview_image.width >= 295 -%}{{ media.preview_image | image_url: width: 295 }} 295w,{%- endif -%}"
+                        src="{{ media.preview_image | image_url: width: 148 }}"
+                        sizes="(min-width: 990px) 74px, (min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw - 4rem)"
+                        alt="{{ media.alt | escape }}"
+                        width="{{ media.preview_image.width }}"
+                        height="{{ media.preview_image.height }}"
+                        loading="lazy"
+                        class="custom-product__thumbnail"
+                      >
+                    </button>
+                  </div>
+                {%- endfor -%}
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+      
+      <div class="custom-product__info">
+        <div class="custom-product__header">
+          {%- if product.vendor -%}
+            <div class="custom-product__vendor">{{ product.vendor }}</div>
+          {%- endif -%}
+          
+          <h1 class="custom-product__title">{{ product.title }}</h1>
+          
+          <div class="custom-product__price" id="price-{{ section.id }}">
+            <div class="price">
+              <span class="price__regular">
+                {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
+                  <span class="price__sale">
+                    <s class="price__compare">{{ product.selected_or_first_available_variant.compare_at_price | money }}</s>
+                    <span class="price__current">{{ product.selected_or_first_available_variant.price | money }}</span>
+                  </span>
+                {%- else -%}
+                  <span class="price__current">{{ product.selected_or_first_available_variant.price | money }}</span>
+                {%- endif -%}
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="custom-product__description rte">
+          {{ product.description }}
+        </div>
+        
+        <div class="custom-product__features">
+          <ul class="custom-product__features-list">
+            <li class="custom-product__features-item">
+              <span class="custom-product__features-icon">•</span>
+              <span class="custom-product__features-text">Sustainable materials from responsibly sourced suppliers</span>
+            </li>
+            <li class="custom-product__features-item">
+              <span class="custom-product__features-icon">•</span>
+              <span class="custom-product__features-text">Carbon-neutral shipping on all orders</span>
+            </li>
+            <li class="custom-product__features-item">
+              <span class="custom-product__features-icon">•</span>
+              <span class="custom-product__features-text">Natural elements with handcrafted attention</span>
+            </li>
+            <li class="custom-product__features-item">
+              <span class="custom-product__features-icon">•</span>
+              <span class="custom-product__features-text">Minimalist design for everyday functionality</span>
+            </li>
+          </ul>
+        </div>
+        
+        <form method="post" action="/cart/add" id="custom-product-form" class="custom-product__form">
+          <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+          
+          {%- unless product.has_only_default_variant -%}
+            <custom-variant-selector 
+              class="custom-product__variants" 
+              data-url="{{ product.url }}" 
+              data-section="{{ section.id }}"
+              data-product-id="{{ product.id }}"
+              data-product-handle="{{ product.handle }}"
+            >
+              {%- for option in product.options_with_values -%}
+                <fieldset class="custom-product__variant-wrapper">
+                  <legend class="custom-product__variant-label">{{ option.name }}</legend>
+                  
+                  {%- if option.name == 'Color' or option.name contains 'Colour' or option.name contains 'color' -%}
+                    <div class="custom-product__color-options">
+                      {%- assign color_patterns = product.metafields.shopify['color-pattern'].value -%}
+                      {%- for value in option.values -%}
+                        {%- liquid
+                          assign color_swatch_id = section.id | append: '-' | append: option.position | append: '-' | append: forloop.index0
+                          assign option_value = value | downcase
+                          assign swatch_style = nil
+                          assign swatch_image = nil
+                  
+                          # Try to find matching color in metaobjects
+                          for metaobject_reference in color_patterns
+                            # Get the metaobject from its reference
+                            if metaobject_reference != blank
+                              # Use color value directly if possible
+                              if option_value == metaobject_reference.color
+                                assign swatch_style = metaobject_reference.color
+                              endif
+                              
+                              # Check if we have an image for this color
+                              if metaobject_reference.image != blank and metaobject_reference.label == value
+                                assign swatch_image = metaobject_reference.image
+                              endif
+                            endif
+                          endfor
+                          
+                          # Fallback to color name if no swatch style found
+                          if swatch_style == blank
+                            assign swatch_style = option_value
+                          endif
+                        -%}
+                  
+                        <input 
+                          type="radio" 
+                          id="{{ color_swatch_id }}"
+                          name="options[{{ option.name | escape }}]"
+                          value="{{ value | escape }}"
+                          form="custom-product-form"
+                          {% if option.selected_value == value %}checked{% endif %}
+                          class="custom-product__variant-input custom-product__color-input visually-hidden"
+                        >
+                        <label for="{{ color_swatch_id }}" class="custom-product__color-swatch" title="{{ value | escape }}">
+                          {%- if swatch_image != blank -%}
+                            <img 
+                              class="custom-product__color-image" 
+                              src="{{ swatch_image | img_url: '48x48' }}" 
+                              alt="{{ value | escape }}"
+                              width="48"
+                              height="48"
+                              loading="lazy"
+                            >
+                          {%- else -%}
+                            <span class="visually-hidden">{{ value }}</span>
+                            <span class="custom-product__color-swatch-bg" {% if swatch_style %}style="background-color: {{ swatch_style }};"{% endif %}></span>
+                          {%- endif -%}
+                        </label>
+                      {%- endfor -%}
+                    </div>
+                  {%- else -%}
+                    <div class="custom-product__variant-buttons">
+                      {%- for value in option.values -%}
+                        <input type="radio" 
+                          id="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                          name="options[{{ option.name | escape }}]"
+                          value="{{ value | escape }}"
+                          form="custom-product-form"
+                          {% if option.selected_value == value %}checked{% endif %}
+                          class="custom-product__variant-input visually-hidden"
+                        >
+                        <label for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}" class="custom-product__variant-button">
+                          {{ value }}
+                        </label>
+                      {%- endfor -%}
+                    </div>
+                  {%- endif -%}
+                </fieldset>
+              {%- endfor -%}
+              <script type="application/json">
+                {{ product.variants | json }}
+              </script>
+            </custom-variant-selector>
+          {%- endunless -%}
+          
+          <div class="custom-product__quantity">
+            <label class="custom-product__quantity-label" for="Quantity-{{ section.id }}">
+              {{ 'products.product.quantity.label' | t }}
+            </label>
+            <custom-quantity-input class="custom-product__quantity-wrapper">
+              <button class="custom-product__quantity-button" name="minus" type="button">
+                <span>&#8722;</span>
+                <span class="visually-hidden">
+                  {{ 'products.product.quantity.decrease' | t: product: product.title }}
+                </span>
+              </button>
+              <input
+                class="custom-product__quantity-input"
+                type="number"
+                name="quantity"
+                id="Quantity-{{ section.id }}"
+                min="1"
+                max="5"
+                value="1"
+                form="custom-product-form"
+              >
+              <button class="custom-product__quantity-button" name="plus" type="button">
+                <span>&#43;</span>
+                <span class="visually-hidden">
+                  {{ 'products.product.quantity.increase' | t: product: product.title }}
+                </span>
+              </button>
+            </custom-quantity-input>
+          </div>
+          
+          <div class="custom-product__buttons">
+            <div class="custom-product__quantity-message" style="display: none;">
+              <p>Limited to 5 items per order to ensure availability for all customers.</p>
+            </div>
+            <button
+              type="submit"
+              name="add"
+              class="custom-product__add-button"
+              data-action="add-to-cart"
+              {% if product.selected_or_first_available_variant.available == false %}
+                disabled
+              {% endif %}
+            >
+              <span>
+                {%- if product.selected_or_first_available_variant.available -%}
+                  {{ 'products.product.add_to_cart' | t }}
+                {%- else -%}
+                  {{ 'products.product.sold_out' | t }}
+                {%- endif -%}
+              </span>
+            </button>
+            
+            {%- if shop.payment_button_enabled -%}
+              <div class="custom-product__payment-button">
+                {{ form | payment_button }}
+              </div>
+            {%- endif -%}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Custom Product",
+  "settings": []
+}
+{% endschema %} 

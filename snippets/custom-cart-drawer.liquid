@@ -1,0 +1,71 @@
+{{ 'custom-cart-drawer.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'custom-cart-drawer.js' | asset_url }}" defer="defer"></script>
+
+
+
+<div id="custom-cart-drawer-overlay" class="custom-cart-drawer-overlay">
+  <span class="visually-hidden">Close cart</span>
+</div>
+
+<div id="custom-cart-drawer" class="custom-cart-drawer">
+  <div class="custom-cart-drawer__header">
+    <h2 class="custom-cart-drawer__title">
+      Your Cart
+      <span class="custom-cart-drawer__count">0</span>
+    </h2>
+    <button class="custom-cart-drawer__close" aria-label="Close cart">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+    
+  </div>
+  
+  <div class="custom-cart-drawer__content">
+    <!-- Empty cart message -->
+    <div class="custom-cart-drawer__empty">
+      <p class="custom-cart-drawer__empty-message">Your cart is currently empty.</p>
+      <a href="/collections/all" class="custom-cart-drawer__continue-button">Continue shopping</a>
+    </div>
+    
+    <!-- Cart items -->
+    <div class="custom-cart-drawer__has-items hidden">
+      <div class="custom-cart-drawer__items">
+        <!-- Items will be dynamically added here -->
+      </div>
+    </div>
+  </div>
+  
+  <div class="custom-cart-drawer__footer custom-cart-drawer__has-items hidden">
+    <div class="custom-cart-drawer__footer-subtotal">
+      <span class="custom-cart-drawer__footer-subtotal-label">Subtotal</span>
+      <span class="custom-cart-drawer__footer-subtotal-value">$0.00</span>
+    </div>
+    
+    <p class="custom-cart-drawer__footer-info">
+      Shipping and taxes calculated at checkout.
+    </p>
+    
+    <div class="custom-cart-drawer__note">
+      <label for="cart-note" class="custom-cart-drawer__note-label">Add a note to your order</label>
+      <textarea id="cart-note" class="custom-cart-drawer__note-textarea" placeholder="Special instructions for your order..."></textarea>
+    </div>
+    
+    <div class="custom-cart-drawer__footer-total">
+      <span class="custom-cart-drawer__footer-total-label">Total</span>
+      <span class="custom-cart-drawer__footer-total-value">$0.00</span>
+    </div>
+    
+    <form action="{{ routes.cart_url }}" method="post" id="cart-drawer-form">
+      <input type="hidden" name="checkout" value="Checkout">
+      <button type="submit" name="checkout" class="custom-cart-drawer__checkout-button" form="cart-drawer-form">
+        Proceed to Checkout
+      </button>
+    </form>
+    
+    <a href="/cart" class="custom-cart-drawer__view-cart" aria-label="View cart">
+      View cart
+    </a>
+  </div>
+</div>
